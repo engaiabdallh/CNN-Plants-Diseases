@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Plant Disease Analyzer | AI Plant Disease Detection System</title>
+        <meta name="description" content="Detect 33 plant diseases across 9 plant types using advanced AI with EfficientNet B4">
+        <meta name="keywords" content="plant diseases, agricultural AI, machine learning, crop health, disease detection">
+        
+        <!-- Fonts & Icons -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+        
+        <!-- CSS -->
+        <link rel="stylesheet" href="/static/css/style.css">
+        
+        <!-- Favicon -->
+        <link rel="icon" type="image/x-icon" href="https://cdn-icons-png.flaticon.com/512/2917/2917633.png">
+        
+        <!-- PWA Meta Tags -->
+        <meta name="theme-color" content="#2E7D32">
+        <link rel="manifest" href="/static/manifest.json">
+    </head>
+    <body>
+        <!-- Loading Screen -->
+        <div id="loadingScreen" class="loading-screen">
+            <div class="loading-content">
+                <div class="loading-spinner"></div>
+                <h3>Loading Plant Disease Analyzer</h3>
+                <p>Initializing AI model...</p>
+            </div>
+        </div>
+
+        <!-- Main Container -->
+        <div class="main-container">
+            <!-- Header -->
+            <header class="app-header">
+                <div class="header-content">
+                    <div class="logo-section">
+                        <div class="logo">
+                            <i class="fas fa-seedling"></i>
+                            <div>
+                                <h1>Plant Disease Analyzer</h1>
+                                <p class="tagline">Intelligent detection of 33 diseases across 9 plant types using AI</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="header-stats">
+                        <div class="stat-item">
+                            <i class="fas fa-microscope"></i>
+                            <div>
+                                <span class="stat-value" id="statClasses">33</span>
+                                <span class="stat-label">Diseases</span>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <i class="fas fa-leaf"></i>
+                            <div>
+                                <span class="stat-value" id="statPlants">9</span>
+                                <span class="stat-label">Plant Types</span>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <i class="fas fa-brain"></i>
+                            <div>
+                                <span class="stat-value">B4</span>
+                                <span class="stat-label">EfficientNet</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Main Content -->
+            <main class="main-content">
+                <div class="content-grid">
+                    <!-- Left Column -->
+                    <div class="left-column">
+                        <!-- Upload Card -->
+                        <div class="card upload-card">
+                            <div class="card-header">
+                                <h2><i class="fas fa-cloud-upload-alt"></i> Upload Image</h2>
+                                <p>Upload a plant leaf image for disease detection</p>
+                            </div>
+                            
+                            <div class="upload-area" id="uploadArea">
+                                <div class="upload-icon">
+                                    <i class="fas fa-file-upload"></i>
+                                </div>
+                                <h3>Drag & Drop Image Here</h3>
+                                <p>Or choose your preferred upload method</p>
+                                <p class="upload-hint">Supported formats: JPG, JPEG, PNG • Max 16MB</p>
+                                
+                                <!-- Single Upload Button -->
+                                <div class="upload-button-container">
+                                    <button id="singleUploadBtn" class="btn btn-primary upload-button">
+                                        <i class="fas fa-upload"></i> Upload Image
+                                    </button>
+                                </div>
+                                
+                                <!-- Hidden Inputs -->
+                                <input type="file" id="fileInput" accept=".jpg,.jpeg,.png" hidden>
+                            </div>
+                            
+                            <!-- Preview Section -->
+                            <div id="filePreview" class="file-preview">
+                                <!-- Image will be displayed here -->
+                            </div>
+                            
+                            <!-- Upload Progress -->
+                            <div class="upload-progress" id="uploadProgress">
+                                <div class="progress-bar">
+                                    <div class="progress-fill"></div>
+                                </div>
+                                <div class="progress-text">Uploading...</div>
+                            </div>
+                            
+                            <div class="card-actions">
+                                <button id="predictBtn" class="btn btn-primary" disabled>
+                                    <i class="fas fa-search"></i> Analyze Image
+                                </button>
+                                <button id="clearBtn" class="btn btn-secondary" disabled>
+                                    <i class="fas fa-times"></i> Clear
+                                </button>
+                            </div>
+                            
+                            <!-- Loading State -->
+                            <div id="loadingState" class="loading-state">
+                                <div class="spinner"></div>
+                                <p>Analyzing image using AI...</p>
+                                <div class="progress-bar">
+                                    <div class="progress-fill"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Results Card -->
+                        <div class="card results-card" id="resultsCard">
+                            <div class="card-header">
+                                <h2><i class="fas fa-chart-line"></i> Analysis Results</h2>
+                                <button id="closeResults" class="btn-icon">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                            
+                            <div class="results-content" id="resultsContent">
+                                <!-- Results will appear here -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column -->
+                    <div class="right-column">
+                        <!-- Plant Categories Card -->
+                        <div class="card plants-card">
+                            <div class="card-header">
+                                <h2><i class="fas fa-leaf"></i> Supported Plants</h2>
+                                <p>Click on any plant to see its diseases</p>
+                            </div>
+                            
+                            <div class="plants-grid" id="plantsGrid">
+                                <!-- Plants will be populated here -->
+                            </div>
+                        </div>
+
+                        <!-- Model Info Card -->
+                        <div class="card model-card">
+                            <div class="card-header">
+                                <h2><i class="fas fa-brain"></i> Model Information</h2>
+                            </div>
+                            
+                            <div class="model-info" id="modelInfo">
+                                <!-- Model info will be populated here -->
+                            </div>
+                            
+                            <div class="model-stats">
+                                <div class="model-stat">
+                                    <i class="fas fa-layer-group"></i>
+                                    <div>
+                                        <span class="stat-value" id="modelLayers">80M</span>
+                                        <span class="stat-label">Parameters</span>
+                                    </div>
+                                </div>
+                                <div class="model-stat">
+                                    <i class="fas fa-expand-arrows-alt"></i>
+                                    <div>
+                                        <span class="stat-value">380×380</span>
+                                        <span class="stat-label">Image Size</span>
+                                    </div>
+                                </div>
+                                <div class="model-stat">
+                                    <i class="fas fa-tachometer-alt"></i>
+                                    <div>
+                                        <span class="stat-value" id="modelAccuracy">97%</span>
+                                        <span class="stat-label">Accuracy</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+            <!-- Footer -->
+            <footer class="app-footer">
+                <div class="footer-content">
+                    <div class="footer-info">
+                        <div class="footer-logo">
+                            <i class="fas fa-seedling"></i>
+                            <span>Plant Disease Analyzer v1.0</span>
+                        </div>
+                        <p class="footer-description">
+                            Powered by EfficientNet B4 & PyTorch • Agricultural AI Solution
+                        </p>
+                    </div>
+                    
+                    <div class="footer-links">
+                        <button class="footer-link" o3nclick="showHelpModal()">
+                            <i class="fas fa-question-circle"></i> Help
+                        </button>
+                        <button class="footer-link" onclick="showModelStatusModal()">
+                            <i class="fas fa-server"></i> Model Status
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="footer-bottom">
+                    <p>&copy; 2024 Plant Disease Analyzer. All rights reserved.</p>
+                    <p class="model-info">EfficientNet B4 • 38 classes • 14 plant types</p>
+                </div>
+            </footer>
+        </div>
+
+        <!-- Plant Details Modal -->
+        <div id="plantModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="modalTitle"></h2>
+                    <button class="btn-icon close-modal" onclick="closeModal()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body" id="modalBody">
+                    <!-- Plant classes will be shown here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Help Modal -->
+        <div id="helpModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2><i class="fas fa-question-circle"></i> Help & Instructions</h2>
+                    <button class="btn-icon close-modal" onclick="closeModal()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="help-content">
+                        <div class="help-section">
+                            <h3><i class="fas fa-upload"></i> How to Use</h3>
+                            <p>1. Click the "Upload Image" button to select an image from your device</p>
+                            <p>2. You can also drag and drop an image directly into the upload area</p>
+                            <p>3. Once uploaded, click "Analyze Image" to process it with AI</p>
+                            <p>4. View the results showing the detected disease and confidence level</p>
+                        </div>
+                        
+                        <div class="help-section">
+                            <h3><i class="fas fa-check-circle"></i> Image Requirements</h3>
+                            <ul class="requirements-list">
+                                <li><i class="fas fa-check"></i> Supported formats: JPG, JPEG, PNG</li>
+                                <li><i class="fas fa-check"></i> Maximum size: 16 MB</li>
+                                <li><i class="fas fa-check"></i> Clear image of plant leaves</li>
+                                <li><i class="fas fa-check"></i> Good lighting and focus</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Model Status Modal -->
+        <div id="modelStatusModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2><i class="fas fa-server"></i> Model Status</h2>
+                    <button class="btn-icon close-modal" onclick="closeModal()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="status-content" id="statusContent">
+                        <!-- Model status will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toast Notifications -->
+        <div id="toastContainer" class="toast-container"></div>
+
+        <!-- JavaScript -->
+        <script src="/static/js/app.js"></script>
+    </body>
+</html>
